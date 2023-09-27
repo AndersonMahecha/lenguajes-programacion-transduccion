@@ -1,0 +1,7 @@
+var edad int = 20
+
+if edad >= 18 {
+    p("Eres mayor de edad.")
+} else {
+    p("Eres menor de edad.")
+}
