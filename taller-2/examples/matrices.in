@@ -1,0 +1,52 @@
+var a [5][5]int  = [5][5]int{{1,2,3,4,5},
+                             {1,2,3,4,5},
+                             {1,2,3,4,5},
+                             {1,2,3,4,5},
+                             {1,2,3,4,5}}
+var b [5][5] int = [5][5]int{{1,2,3,4,5},
+                             {1,2,3,4,5},
+                             {1,2,3,4,5},
+                             {1,2,3,4,5},
+                             {1,2,3,4,5}}
+
+func suma (a int, b int) int {
+    var c[5][5] int
+    for var i=0; i<5; i++ {
+        for var j=0; j<5; j++ {
+            c[i][j] = a[i][j] + b[i][j]
+        }
+    }
+    return c
+}
+
+func resta (a int, b int) int {
+    var c[5][5] int
+    for var i=0; i<5; i++ {
+        for var j=0; j<5; j++ {
+            c[i][j] = a[i][j] - b[i][j]
+        }
+    }
+    return c
+}
+
+func transpose (a int) int {
+    var c[5][5] int
+    for var i=0; i<5; i++ {
+        for var j=0; j<5; j++ {
+            c[i][j] = a[j][i]
+        }
+    }
+    return c
+}
+
+fun dot (a int) int {
+    var c[5][5] int
+    for var i=0; i<5; i++ {
+        for var j=0; j<5; j++ {
+            for var k=0; k<5; k++ {
+                c[i][j] += a[i][k] * b[k][j]
+            }
+        }
+    }
+    return c
+}

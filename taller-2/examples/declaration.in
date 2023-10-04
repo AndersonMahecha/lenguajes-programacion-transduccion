@@ -1,7 +1,14 @@
-var x int = 5
+var xyz int = 5
 var y float = 3.14
 var z string = "Hola mundo"
 var w bool = true
+var a = "hola"
+var b int
+var c = 10
+var d [5][2]int
+var e [5]int
+var y [5]int = [5]int{10, 20, 30}
+var x [2][2] int = [2][2]int{{1, 2}, {3, 4}}
 
 func suma(a int, b int) int {
     return a + b

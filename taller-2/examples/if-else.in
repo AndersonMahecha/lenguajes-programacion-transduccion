@@ -1,5 +1,5 @@
 var edad int = 20
-
+var matriz = [[1,3,4],[2,4,6],[3,6,9]]
 if edad >= 18 {
     p("Eres mayor de edad.")
 } else {

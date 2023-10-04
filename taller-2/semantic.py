@@ -13,6 +13,16 @@ class MyVisitor(lenguajeVisitor):
         self.memory = {}
 
     def visitDeclaracionVariable(self, ctx: lenguajeParser.DeclaracionVariableContext):
+        global identificador, valor, tipo
+        for children in ctx.getChildren():
+            if isinstance(children, lenguajeParser.IdentificadorContext):
+                identificador = self.visitIdentificador(children)
+            elif isinstance(children, lenguajeParser.TipoContext):
+                tipo = self.visitTipo(children)
+            elif isinstance(children, lenguajeParser.ExpresionContext):
+                valor = self.visitChildren(children)
+        self.memory[identificador] = {"typo": tipo, "valor": valor}
+        print(self.memory)
         return self.visitChildren(ctx)
 
     def visitIdentificador(self, ctx: lenguajeParser.IdentificadorContext):
@@ -31,21 +41,20 @@ class MyVisitor(lenguajeVisitor):
         else:
             return type(None)
 
+    def visitFactor(self, ctx: lenguajeParser.FactorContext):
+        for child in ctx.getChildren():
+            if (isinstance(child, lenguajeParser.EnteroContext) |
+                    isinstance(child, lenguajeParser.DecimalContext) |
+                    isinstance(child, lenguajeParser.IdentificadorContext)):
+                return self.visitChildren(child)
+            else:
+                return child.getText()
+
     def visitEntero(self, ctx: lenguajeParser.EnteroContext):
         return int(ctx.getText())
 
     def visitDecimal(self, ctx: lenguajeParser.DecimalContext):
         return float(ctx.getText())
-
-    def visitExpresion(self, ctx:lenguajeParser.ExpresionContext):
-        return self.visitChildren(ctx)
-
-    def visitTermino(self, ctx:lenguajeParser.TerminoContext):
-        return self.visitChildren(ctx)
-
-    def visitFactor(self, ctx:lenguajeParser.FactorContext):
-
-        return self.visitChildren(ctx)
 
 
 if __name__ == '__main__':

@@ -6,9 +6,11 @@ programa: declaracion* | sentencia* EOF;
 
 declaracion: declaracionVariable | declaracionFuncion;
 
-declaracionVariable: 'var' identificador (tipo? '=' expresion)?;
+declaracionVariable: 'var' identificador tipo? ('=' (expresion | inicializacionArray))?;
 
-tipo: 'int' | 'float' | 'string' | 'bool';
+tipo: 'int' | 'float' | 'string' | 'bool' | array;
+
+array: '['expresion']' array* tipo;
 
 declaracionFuncion:
 	'func' identificador '(' listaParametros ')' (tipo)? bloque;
@@ -28,7 +30,7 @@ sentencia:
 	| modificacion
 	| retorno;
 
-asignacion: identificador ('=' expresion)?;
+asignacion: (identificador ('=' expresion)?) | (identificador accesoArray ('=' expresion)?);
 
 condicional: 'if' comparacion bloque ('else' bloque)?;
 
@@ -68,12 +70,20 @@ retorno: 'return' expresion?;
 
 expresion:
 	termino (operadorAritmetico termino)*
-	| llamadaFuncion;
+	| llamadaFuncion
+	| expresionArray;
+
+expresionArray:'{' expresion (',' expresion)* '}';
+
+inicializacionArray: array expresionArray;
+
+accesoArray:  ('[' expresion ']')*;
 
 termino: factor (('^' | '%') factor)*;
 
 factor:
 	identificador
+	| identificador accesoArray
 	| entero
 	| decimal
 	| CADENA
