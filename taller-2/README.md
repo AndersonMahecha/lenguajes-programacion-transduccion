@@ -5,71 +5,74 @@
 La gramatica de este lenguaje sera parecida a la de Golang.
 
 ```none
-<programa> ::= <declaracion>* | <sentencia>* EOF
+<programa> ::= (<declaracion> | <sentencia>)* EOF
 
 <declaracion> ::= <declaracionVariable> | <declaracionFuncion>
 
-<declaracionVariable> ::= "var" <identificador> (<tipo>? "=" <expresion>)?
+<declaracionVariable> ::= 'var' <identificador> [<tipo>] [('=' (<expresion> | <inicializacionArray>))]
 
-<tipo> ::= "int" | "float" | "string" | "bool"
+<tipo> ::= 'int' | 'float' | 'string' | 'bool' | <array>
 
-<declaracionFuncion> ::= "func" <identificador> "(" <listaParametros> ")" (<tipo>)? <bloque>
+<array> ::= '[' <expresion> ']' [<array>]* <tipo>
 
-<listaParametros> ::= <parametro> ("," <parametro>)* | ε
+<declaracionFuncion> ::= 'func' <identificador> '(' <listaParametros> ')' [<tipo>] <bloque>
+
+<listaParametros> ::= <parametro> (',' <parametro>)* | ε
 
 <parametro> ::= <identificador> <tipo>
 
-<bloque> ::= "{" <sentencia>* "}"
+<bloque> ::= '{' <sentencia>* '}'
 
-<sentencia> ::= <declaracionVariable>
-            | <asignacion>
-            | <condicional>
-            | <cicloFor>
-            | <llamadaFuncion>
-            | <modificacion>
-            | <retorno>
+<sentencia> ::= <declaracionVariable> | <asignacion> | <condicional> | <cicloFor> | <llamadaFuncion> | <modificacion> | <retorno>
 
-<asignacion> ::= <identificador> ("=" <expresion>)?
+<asignacion> ::= (<identificador> ['=' <expresion>]) | (<identificador> <accesoArray> ['=' <expresion>])
 
-<condicional> ::= "if" <comparacion> <bloque> ("else" <bloque>)?
+<condicional> ::= 'if' <comparacion> <bloque> ['else' <bloque>]
 
 <comparacion> ::= <expresion> (<operadorComparacion> <expresion>)*
 
-<operadorComparacion> ::= "==" | "!=" | "<" | ">" | "<=" | ">="
+<operadorComparacion> ::= '==' | '!=' | '<' | '>' | '<=' | '>='
 
-<operadorAritmetico> ::= "+" | "-" | "*" | "/" | "^" | "%"
+<operadorAritmetico> ::= '+' | '-' | '*' | '/' | '^' | '%'
 
 <modificacion> ::= <identificador> (<operadorModificadorSimple> | <operadorModificadorCompuesto> (<identificador> | <expresion>))
 
-<operadorModificadorSimple> ::= "++" | "--"
+<operadorModificadorSimple> ::= '++' | '--'
 
-<operadorModificadorCompuesto> ::= "+=" | "-=" | "*=" | "/=" | "^=" | "%="
+<operadorModificadorCompuesto> ::= '+=' | '-=' | '*=' | '/=' | '^=' | '%='
 
-<cicloFor> ::= "for" <declaracionVariable> ";" <comparacion> ";" <modificacion> <bloque>
+<cicloFor> ::= 'for' <declaracionVariable> ';' <comparacion> ';' <modificacion> <bloque>
 
-<llamadaFuncion> ::= <identificador> "(" <listaArgumentos> ")"
+<llamadaFuncion> ::= <identificador> '(' <listaArgumentos> ')'
 
-<listaArgumentos> ::= <expresion> ("," <expresion>)* | ε
+<listaArgumentos> ::= <expresion> (',' <expresion>)* | ε
 
-<retorno> ::= "return" <expresion>?
+<retorno> ::= 'return' <expresion>?
 
-<expresion> ::= <termino> (<operadorAritmetico> <termino>)* | <llamadaFuncion>
+<expresion> ::= <termino> (<operadorAritmetico> <termino>)* | <llamadaFuncion> | <expresionArray>
 
-<termino> ::= <factor> ((("^" | "%") <factor>)*
+<expresionArray> ::= '{' <expresion> (',' <expresion>)* '}'
 
-<factor> ::= <identificador> | <entero> | <decimal> | <cadena> | "true" | "false" | "(" <expresion> ")"
+<inicializacionArray> ::= <array> <expresionArray>
 
-<identificador> ::= <LETRA> (<LETRA> | <DIGITO>)*
+<accesoArray> ::= ('[' <expresion> ']')*
 
-<entero> ::= <DIGITO>+
+<termino> ::= <factor> (('^' | '%') <factor>)*
 
-<decimal> ::= <entero> "." <entero>
+<factor> ::= <identificador> | (<identificador> <accesoArray>) | <entero> | <decimal> | CADENA | 'true' | 'false' | '(' <expresion> ')'
 
-<cadena> ::= '"' .*? '"'
+<identificador> ::= LETRA (LETRA | DIGITO)*
 
-<LETRA> ::= [a-zA-Z]
+<entero> ::= DIGITO+
 
-<DIGITO> ::= [0-9]
+<decimal> ::= <entero> '.' <entero>
+
+CADENA ::= '"' .*? '"'
+
+LETRA ::= [a-zA-Z]
+
+DIGITO ::= [0-9]
+
 ```
 ## Analizador lexico
 Esta definicion puede ser encontrada en el archivo [lenguaje.g4](lenguaje.g4).  
