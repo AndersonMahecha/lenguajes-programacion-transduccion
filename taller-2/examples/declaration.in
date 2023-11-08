@@ -1,4 +1,9 @@
+func suma(a int, b int) int {
+    b = 10
+    return a + b
+}
 var xyz int = 5
+xyz = 1
 var y float = 3.14
 var z string = "Hola mundo"
 var w bool = true
@@ -10,6 +15,13 @@ var e [5]int
 var y [5]int = [5]int{10, 20, 30}
 var x [2][2] int = [2][2]int{{1, 2}, {3, 4}}
 
-func suma(a int, b int) int {
-    return a + b
+func resta(a int, b int) int {
+    return a - b
 }
+
+if b {
+    c = 11
+    var nodeclarada = 10
+    nodeclarada = 11
+}
+

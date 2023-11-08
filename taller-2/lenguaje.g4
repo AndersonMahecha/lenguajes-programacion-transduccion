@@ -2,7 +2,7 @@
 
 grammar lenguaje;
 
-programa: declaracion* | sentencia* EOF;
+programa: sentencia* EOF;
 
 declaracion: declaracionVariable | declaracionFuncion;
 
@@ -23,6 +23,7 @@ bloque: '{' sentencia* '}';
 
 sentencia:
 	declaracionVariable
+	| declaracionFuncion
 	| asignacion
 	| condicional
 	| cicloFor
@@ -41,13 +42,8 @@ operadorComparacion: '==' | '!=' | '<' | '>' | '<=' | '>=';
 operadorAritmetico: '+' | '-' | '*' | '/' | '^' | '%';
 
 modificacion:
-	identificador (
-		operadorModificadorSimple
-		| operadorModificadorCompuesto (
-			identificador
-			| expresion
-		)
-	);
+	(identificador accesoArray?) (operadorModificadorSimple |
+	 operadorModificadorCompuesto (identificador| expresion));
 
 operadorModificadorSimple: '++' | '--';
 
@@ -79,9 +75,7 @@ inicializacionArray: array expresionArray;
 
 accesoArray:  ('[' expresion ']')*;
 
-termino: factor (('^' | '%') factor)*;
-
-factor:
+termino:
 	identificador
 	| identificador accesoArray
 	| entero
