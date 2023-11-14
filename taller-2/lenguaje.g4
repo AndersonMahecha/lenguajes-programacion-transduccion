@@ -28,11 +28,13 @@ sentencia:
 	| retorno
 	| buildInFunction;
 
-buildInFunction: print | linearRegression;
+buildInFunction: print | linearRegression | plot;
 
 print: 'print' '(' expresion ')';
 
 linearRegression: 'linearRegression' '(' expresion ')';
+
+plot: 'plot' '(' expresion ')';
 
 asignacion: (identificador ('=' expresion)?) | (identificador accesoArray ('=' expresion)?);
 

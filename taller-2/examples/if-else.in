@@ -1,7 +1,7 @@
-var edad int = 20
-var matriz = [[1,3,4],[2,4,6],[3,6,9]]
+var edad int = 15
+var matriz = {{1,3,4},{2,4,6},{3,6,9}}
 if edad >= 18 {
-    p("Eres mayor de edad.")
+    print("Eres mayor de edad.")
 } else {
-    p("Eres menor de edad.")
+    print("Eres menor de edad.")
 }

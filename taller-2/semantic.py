@@ -1,7 +1,9 @@
 import sys
 
+import numpy as np
 from antlr4 import *
 from antlr4.InputStream import InputStream
+import matplotlib.pyplot as plt
 from antlr4.tree.Tree import TerminalNodeImpl
 
 from generatedcode.lenguajeLexer import lenguajeLexer
@@ -79,7 +81,65 @@ class MyVisitor(lenguajeVisitor):
 
     def visitLinearRegression(self, ctx: lenguajeParser.LinearRegressionContext):
         value = self.visitExpresion(ctx.expresion())
-        print(value)
+        if len(value) != 2:
+            raise Exception(f"LinearRegression espera un array de 2 dimensiones, {len(value)} recibidos")
+        if len(value[0]) != len(value[1]):
+            raise Exception(f"LinearRegression espera un array de 2 dimensiones con igual cantidad de elementos, {len(value[0])} y {len(value[1])} recibidos")
+
+        x = np.array(value[0])
+        y = np.array(value[1])
+        n = np.size(x)
+
+        x_mean = np.mean(x)
+        y_mean = np.mean(y)
+
+        Sxy = np.sum(x * y) - n * x_mean * y_mean
+        Sxx = np.sum(x * x) - n * x_mean * x_mean
+
+        b1 = Sxy / Sxx
+        b0 = y_mean - b1 * x_mean
+        print(f"ecuacion de la regresion lineal: y = {b1:.4f}x+{b0:.4f}")
+
+        y_pred = b1 * x + b0
+        plt.scatter(x, y, color='red')
+        plt.plot(x, y_pred, color='green')
+        plt.xlabel('Independent variable X')
+        plt.ylabel('Dependent variable y')
+        plt.show()
+
+    def visitPlot(self, ctx:lenguajeParser.PlotContext):
+        value = self.visitExpresion(ctx.expresion())
+        if len(value) != 2:
+            raise Exception(f"plot espera un array de 2 dimensiones, {len(value)} recibidos")
+        if len(value[0]) != len(value[1]):
+            raise Exception(
+                f"plot espera un array de 2 dimensiones con igual cantidad de elementos, {len(value[0])} y {len(value[1])} recibidos")
+
+        x = np.array(value[0])
+        y = np.array(value[1])
+        plt.scatter(x, y)
+        plt.xlabel('Independent variable X')
+        plt.ylabel('Dependent variable y')
+        plt.show()
+
+    def visitCondicional(self, ctx:lenguajeParser.CondicionalContext):
+        result = self.visitComparacion(ctx.comparacion())
+        if result:
+            self.visitBloque(ctx.bloque(0))
+        elif ctx.bloque(1) is not None:
+            self.visitBloque(ctx.bloque(1))
+
+    def visitComparacion(self, ctx:lenguajeParser.ComparacionContext):
+        comparison = ""
+        for children in ctx.getChildren():
+            if isinstance(children, lenguajeParser.ExpresionContext):
+                comparison += str(self.visitExpresion(children))
+            elif isinstance(children, lenguajeParser.OperadorComparacionContext):
+                comparison += str(self.visitOperadorComparacion(children))
+        return eval(comparison)
+
+    def visitOperadorComparacion(self, ctx:lenguajeParser.OperadorComparacionContext):
+        return ctx.getText()
 
     def visitBloque(self, ctx: lenguajeParser.BloqueContext):
         if isinstance(ctx.parentCtx, lenguajeParser.DeclaracionFuncionContext):
