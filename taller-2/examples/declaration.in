@@ -1,3 +1,4 @@
+var x [2][2] int = {{1, 2}, {3, 4}}
 func suma(a int, b int) int {
     b = 10
     return a + b
@@ -9,11 +10,14 @@ var z string = "Hola mundo"
 var w bool = true
 var a = "hola"
 var b int
+b = 10
 var c = 10
+var result = b + c
+print(result)
 var d [5][2]int
 var e [5]int
-var y [5]int = [5]int{10, 20, 30}
-var x [2][2] int = [2][2]int{{1, 2}, {3, 4}}
+var y [5]int = {10, 20, 30}
+var x [2][2] int = {{1, 2}, {3, 4}}
 
 func resta(a int, b int) int {
     return a - b

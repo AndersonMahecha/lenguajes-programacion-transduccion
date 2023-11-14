@@ -1,12 +1,8 @@
-
-
 grammar lenguaje;
 
 programa: sentencia* EOF;
 
-declaracion: declaracionVariable | declaracionFuncion;
-
-declaracionVariable: 'var' identificador tipo? ('=' (expresion | inicializacionArray))?;
+declaracionVariable: 'var' identificador tipo? ('=' (expresion | expresionArray))?;
 
 tipo: 'int' | 'float' | 'string' | 'bool' | array;
 
@@ -29,7 +25,14 @@ sentencia:
 	| cicloFor
 	| llamadaFuncion
 	| modificacion
-	| retorno;
+	| retorno
+	| buildInFunction;
+
+buildInFunction: print | linearRegression;
+
+print: 'print' '(' expresion ')';
+
+linearRegression: 'linearRegression' '(' expresion ')';
 
 asignacion: (identificador ('=' expresion)?) | (identificador accesoArray ('=' expresion)?);
 
@@ -71,8 +74,6 @@ expresion:
 
 expresionArray:'{' expresion (',' expresion)* '}';
 
-inicializacionArray: array expresionArray;
-
 accesoArray:  ('[' expresion ']')*;
 
 termino:
@@ -81,9 +82,10 @@ termino:
 	| entero
 	| decimal
 	| CADENA
-	| 'true'
-	| 'false'
+	| booleanos
 	| '(' expresion ')';
+
+booleanos: 'true' | 'false';
 
 identificador: LETRA (LETRA | DIGITO)*;
 
