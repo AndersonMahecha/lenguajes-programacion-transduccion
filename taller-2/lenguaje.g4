@@ -28,7 +28,7 @@ sentencia:
 	| retorno
 	| buildInFunction;
 
-buildInFunction: print | linearRegression | plot;
+buildInFunction: print | linearRegression | plot | trigonometricFunctions | matrixFuctions;
 
 print: 'print' '(' expresion ')';
 
@@ -36,13 +36,23 @@ linearRegression: 'linearRegression' '(' expresion ')';
 
 plot: 'plot' '(' expresion ')';
 
+trigonometricFunctions: trigonometricFunction '(' expresion ')';
+
+trigonometricFunction: 'sin' | 'cos' | 'tan' | 'asin' | 'acos' | 'atan';
+
+matrixFuctions: matrixFunction '(' expresion (',' expresion)* ')';
+
+matrixFunction: 'matrixSuma' | 'matrixResta' | 'matrixMultiplicacion' | 'matrixTranspuesta' | 'matrixInversa';
+
 asignacion: (identificador ('=' expresion)?) | (identificador accesoArray ('=' expresion)?);
 
 condicional: 'if' comparacion bloque ('else' bloque)?;
 
-comparacion: expresion (operadorComparacion expresion)*;
+comparacion: expresion ((operadorComparacion|operadorBoolean) expresion)*;
 
 operadorComparacion: '==' | '!=' | '<' | '>' | '<=' | '>=';
+
+operadorBoolean: 'and' | 'or';
 
 operadorAritmetico: '+' | '-' | '*' | '/' | '^' | '%';
 
@@ -72,7 +82,8 @@ retorno: 'return' expresion?;
 expresion:
 	termino (operadorAritmetico termino)*
 	| llamadaFuncion
-	| expresionArray;
+	| expresionArray
+	| trigonometricFunctions;
 
 expresionArray:'{' expresion (',' expresion)* '}';
 

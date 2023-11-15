@@ -14,7 +14,8 @@ b = 10
 var c = 10
 var result = b + c
 print(result)
-var d [5][2]int
+var d [5][2][3]int
+print(d)
 var e [5]int
 var y [5]int = {10, 20, 30}
 var x [2][2] int = {{1, 2}, {3, 4}}

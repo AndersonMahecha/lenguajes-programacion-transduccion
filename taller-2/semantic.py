@@ -1,3 +1,4 @@
+import math
 import sys
 
 import numpy as np
@@ -9,6 +10,17 @@ from antlr4.tree.Tree import TerminalNodeImpl
 from generatedcode.lenguajeLexer import lenguajeLexer
 from generatedcode.lenguajeParser import lenguajeParser
 from generatedcode.lenguajeVisitor import lenguajeVisitor
+
+
+def build_array(param):
+    sub_type = param["subtype"]
+    array = [None] * sub_type["size"][0]
+    for pos, _ in enumerate(array):
+        if sub_type["type"] == "array":
+            array[pos] = build_array(sub_type)
+        else:
+            array[pos] = sub_type["type"]()
+    return array
 
 
 class Context:
@@ -35,10 +47,10 @@ class Context:
     def get_value(self, key):
         if key in self.memory:
             if "value" not in self.memory[key]:
-                if self.t != "function":
-                    raise Exception(f"Variable no inicializada: {key}")
-                else:
-                    return self.memory[key]["type"]()
+                if self.memory[key]["type"] == "array":
+                    self.memory[key]["value"] = build_array(self.memory[key])
+                    return self.memory[key]["value"]
+                return self.memory[key]["type"]()
             return self.memory[key]["value"]
         elif self.parent is not None:
             return self.parent.get_value(key)
@@ -77,14 +89,15 @@ class MyVisitor(lenguajeVisitor):
 
     def visitPrint(self, ctx: lenguajeParser.PrintContext):
         value = self.visitExpresion(ctx.expresion())
-        print(f'print from built-in function:\n\t"{value}"')
+        print(f'{value}')
 
     def visitLinearRegression(self, ctx: lenguajeParser.LinearRegressionContext):
         value = self.visitExpresion(ctx.expresion())
         if len(value) != 2:
             raise Exception(f"LinearRegression espera un array de 2 dimensiones, {len(value)} recibidos")
         if len(value[0]) != len(value[1]):
-            raise Exception(f"LinearRegression espera un array de 2 dimensiones con igual cantidad de elementos, {len(value[0])} y {len(value[1])} recibidos")
+            raise Exception(
+                f"LinearRegression espera un array de 2 dimensiones con igual cantidad de elementos, {len(value[0])} y {len(value[1])} recibidos")
 
         x = np.array(value[0])
         y = np.array(value[1])
@@ -107,7 +120,7 @@ class MyVisitor(lenguajeVisitor):
         plt.ylabel('Dependent variable y')
         plt.show()
 
-    def visitPlot(self, ctx:lenguajeParser.PlotContext):
+    def visitPlot(self, ctx: lenguajeParser.PlotContext):
         value = self.visitExpresion(ctx.expresion())
         if len(value) != 2:
             raise Exception(f"plot espera un array de 2 dimensiones, {len(value)} recibidos")
@@ -122,23 +135,47 @@ class MyVisitor(lenguajeVisitor):
         plt.ylabel('Dependent variable y')
         plt.show()
 
-    def visitCondicional(self, ctx:lenguajeParser.CondicionalContext):
+    def visitTrigonometricFunction(self, ctx: lenguajeParser.TrigonometricFunctionContext):
+        function = ctx.getText()
+        if function == "sin":
+            return math.sin
+        elif function == "cos":
+            return math.cos
+        elif function == "tan":
+            return math.tan
+        elif function == "asin":
+            return math.asin
+        elif function == "acos":
+            return math.acos
+        elif function == "atan":
+            return math.atan
+        else:
+            raise Exception(f"Funcion trigonometrica no reconocida: {function}")
+
+    def visitTrigonometricFunctions(self, ctx: lenguajeParser.TrigonometricFunctionsContext):
+        value = self.visitExpresion(ctx.expresion())
+        function = self.visitTrigonometricFunction(ctx.trigonometricFunction())
+        return function(math.radians(value))
+
+    def visitCondicional(self, ctx: lenguajeParser.CondicionalContext):
         result = self.visitComparacion(ctx.comparacion())
         if result:
             self.visitBloque(ctx.bloque(0))
         elif ctx.bloque(1) is not None:
             self.visitBloque(ctx.bloque(1))
 
-    def visitComparacion(self, ctx:lenguajeParser.ComparacionContext):
+    def visitComparacion(self, ctx: lenguajeParser.ComparacionContext):
         comparison = ""
         for children in ctx.getChildren():
             if isinstance(children, lenguajeParser.ExpresionContext):
-                comparison += str(self.visitExpresion(children))
+                comparison += f" {str(self.visitExpresion(children))} "
             elif isinstance(children, lenguajeParser.OperadorComparacionContext):
-                comparison += str(self.visitOperadorComparacion(children))
+                comparison += f" {str(self.visitOperadorComparacion(children))} "
+            elif isinstance(children, lenguajeParser.OperadorBooleanContext):
+                comparison += f" {str(self.visitOperadorBoolean(children))} "
         return eval(comparison)
 
-    def visitOperadorComparacion(self, ctx:lenguajeParser.OperadorComparacionContext):
+    def visitOperadorComparacion(self, ctx: lenguajeParser.OperadorComparacionContext):
         return ctx.getText()
 
     def visitBloque(self, ctx: lenguajeParser.BloqueContext):
@@ -208,6 +245,8 @@ class MyVisitor(lenguajeVisitor):
                 operation += self.visitOperadorAritmetico(children)
             elif isinstance(children, lenguajeParser.ExpresionContext):
                 operation += self.visitExpresion(children)
+            elif isinstance(children, lenguajeParser.trigonometricFunctionsContext):
+                operation += self.visitTrigonometricFunctions(children)
         return eval(operation)
 
     def visitOperadorAritmetico(self, ctx: lenguajeParser.OperadorAritmeticoContext):
@@ -228,6 +267,9 @@ class MyVisitor(lenguajeVisitor):
 
     def visitBooleanos(self, ctx: lenguajeParser.BooleanosContext):
         return ctx.getText() == "true"
+
+    def visitOperadorBoolean(self, ctx: lenguajeParser.OperadorBooleanContext):
+        return ctx.getText()
 
     def visitTipo(self, ctx: lenguajeParser.TipoContext):
 
