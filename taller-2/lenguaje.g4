@@ -26,6 +26,7 @@ sentencia:
 	| llamadaFuncion
 	| modificacion
 	| retorno
+	| expresion
 	| buildInFunction;
 
 buildInFunction: print | linearRegression | plot | trigonometricFunctions | matrixFuctions;
@@ -57,8 +58,7 @@ operadorBoolean: 'and' | 'or';
 operadorAritmetico: '+' | '-' | '*' | '/' | '^' | '%';
 
 modificacion:
-	(identificador accesoArray?) (operadorModificadorSimple |
-	 operadorModificadorCompuesto (identificador| expresion));
+	identificador accesoArray? (operadorModificadorSimple | (operadorModificadorCompuesto (identificador| expresion)));
 
 operadorModificadorSimple: '++' | '--';
 
@@ -80,8 +80,8 @@ listaArgumentos: expresion (',' expresion)* |;
 retorno: 'return' expresion?;
 
 expresion:
-	termino (operadorAritmetico termino)*
-	| llamadaFuncion
+	llamadaFuncion
+	| termino (operadorAritmetico termino)*
 	| expresionArray
 	| trigonometricFunctions
 	| matrixFuctions;

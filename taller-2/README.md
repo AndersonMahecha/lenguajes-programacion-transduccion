@@ -202,6 +202,21 @@ plot(data)
 - Arcocoseno (acos(angle))
 - Arcotangente (atan(angle))
 
+#### Ejemplo de uso de operaciones trigonometricas
+```None
+print(sin(0))
+print(cos(0))
+print(tan(0))
+print(asin(0))
+print(acos(0))
+print(atan(0))
+>>>0.0
+>>>1.0
+>>>0.0
+>>>0.0
+>>>1.5707963267948966
+>>>0.0
+```
 ### Operaciones de matrices soportadas
 - Suma (matrixSuma(matrix1, matrix2))
 - Resta (matrixResta(matrix1, matrix2))

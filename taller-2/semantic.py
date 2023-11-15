@@ -1,5 +1,6 @@
 import math
 import sys
+import copy
 
 import numpy as np
 from antlr4 import *
@@ -29,12 +30,6 @@ class Context:
         self.parent = parent
         self.t = t
         self.memory = {}
-
-    def __str__(self):
-        for key, value in self.memory.items():
-            print(key, value, sep=": ", end="\n")
-        self.parent.__str__()
-        return ""
 
     def get(self, key):
         if key in self.memory:
@@ -208,10 +203,24 @@ class MyVisitor(lenguajeVisitor):
 
     def visitBloque(self, ctx: lenguajeParser.BloqueContext):
         if isinstance(ctx.parentCtx, lenguajeParser.DeclaracionFuncionContext):
-            return self.visitChildren(ctx)
+            for sentencia in ctx.sentencia():
+                result = self.visitSentencia(sentencia)
+                if result is not None:
+                    return result
+            return None
         self.current_context = Context(self.current_context)
         self.visitChildren(ctx)
         self.current_context = self.current_context.parent
+
+    def visitSentencia(self, ctx:lenguajeParser.SentenciaContext):
+        for children in ctx.getChildren():
+            if isinstance(children, lenguajeParser.RetornoContext):
+                return self.visitRetorno(children)
+            else:
+                self.visit(children)
+
+    def visitRetorno(self, ctx:lenguajeParser.RetornoContext):
+        return self.visitExpresion(ctx.expresion())
 
     def visitDeclaracionVariable(self, ctx: lenguajeParser.DeclaracionVariableContext):
         identificador, valor, tipo = None, None, {}
@@ -227,28 +236,57 @@ class MyVisitor(lenguajeVisitor):
         if "type" not in tipo or tipo["type"] == type(None):
             tipo["type"] = type(valor)
         self.current_context.set(identificador, tipo, True)
-        return self.visitChildren(ctx)
+        ##return self.visitChildren(ctx)
+
+    def visitLlamadaFuncion(self, ctx: lenguajeParser.LlamadaFuncionContext):
+        identifier = self.visitIdentificador(ctx.identificador())
+        arguments = self.visitListaArgumentos(ctx.listaArgumentos())
+        function = self.current_context.get(identifier)
+        function_context = copy.deepcopy(function["context"])
+
+        for i, param in enumerate(function["parameters"]):
+            function_context.set(param["key"], {"type": type(arguments[i]), "value": arguments[i]}, False)
+
+        function_context.parent = self.current_context
+        self.current_context = function_context
+        block_function = function["block"]
+        result = self.visitBloque(block_function)
+        self.current_context = self.current_context.parent
+        return result
+
+    def visitListaArgumentos(self, ctx: lenguajeParser.ListaArgumentosContext):
+        arguments = []
+        for children in ctx.getChildren():
+            if isinstance(children, lenguajeParser.ExpresionContext):
+                arguments.append(self.visitExpresion(children))
+        return arguments
 
     def visitDeclaracionFuncion(self, ctx: lenguajeParser.DeclaracionFuncionContext):
-        identificador, parametros = None, {}
-        for children in ctx.getChildren():
-            if isinstance(children, lenguajeParser.IdentificadorContext):
-                identificador = self.visitIdentificador(children)
-            elif isinstance(children, lenguajeParser.ListaParametrosContext):
-                parametros = self.visitListaParametros(children)
-        self.current_context.set(identificador, {"type": "func"}, True)
-        self.current_context = Context(self.current_context, t="function")
+        identificador = self.visitIdentificador(ctx.identificador())
+        parametros = self.visitListaParametros(ctx.listaParametros())
+        tipo_return = self.visitTipo(ctx.tipo())
+        bloque = ctx.bloque()
 
-        for key in parametros:
-            self.current_context.set(key, parametros[key], True)
-        self.visitChildren(ctx)
-        self.current_context = self.current_context.parent
+        function_context = Context(t="function")
+
+        for param in parametros:
+            function_context.set(param["key"], param, True)
+
+        self.current_context.set(identificador, {
+            "type": "func",
+            "context": function_context,
+            "parameters": parametros,
+            "return": tipo_return,
+            "block": bloque,
+        }, True)
 
     def visitListaParametros(self, ctx: lenguajeParser.ListaParametrosContext):
-        parametros = {}
+        parametros = []
         for children in ctx.getChildren():
             if isinstance(children, lenguajeParser.ParametroContext):
-                parametros[children.identificador().getText()] = self.visitTipo(children.tipo())
+                tipo = self.visitTipo(children.tipo())
+                tipo["key"] = children.identificador().getText()
+                parametros.append(tipo)
         return parametros
 
     def visitAsignacion(self, ctx: lenguajeParser.AsignacionContext):
