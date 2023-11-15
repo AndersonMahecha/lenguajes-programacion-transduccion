@@ -202,9 +202,40 @@ plot(data)
 - Arcocoseno (acos(angle))
 - Arcotangente (atan(angle))
 
+### Operaciones de matrices soportadas
+- Suma (matrixSuma(matrix1, matrix2))
+- Resta (matrixResta(matrix1, matrix2))
+- Multiplicacion (matrixMultiplicacion(matrix1, matrix2))
+- Transpuesta (matrixTranspuesta(matrix))
+- Inversa (matrixInversa(matrix))
+
+#### Ejemplo de uso de operaciones de matrices
+```None
+var a [2][2] int = {{1,2},{3,4}}
+var b [2][2] int = {{5,6},{7,8}}
+
+print(matrixSuma(a,b))
+print(matrixResta(a,b))
+print(matrixMultiplicacion(a,b))
+print(matrixTranspuesta(a))
+print(matrixInversa(a))
+>>>[[6, 8], [10, 12]]
+>>>[[-4, -4], [-4, -4]]
+>>>[[19, 22], [43, 50]]
+>>>[[1, 3], [2, 4]]
+>>>[[-1.9999999999999996, 0.9999999999999998], [1.4999999999999998, -0.4999999999999999]]
+```
+
 ## Analizador lexico
 Esta definicion puede ser encontrada en el archivo [lenguaje.g4](lenguaje.g4).  
 Se hace uso de la libreria [antlr4](https://www.antlr.org/) para generar el analizador lexico y sintactico.
 
 ## Analizador semantico
 Para generar el analizador semantico, se debe ejecutar el comando 
+```
+antlr4 -v 4.13.0 -Dlanguage=Python3 -visitor -no-listener lenguaje.g4  -o generatedcode
+```
+Luego para ejecutar el analizador semantico, se debe ejecutar el comando
+```
+python semantic.py {{archivo de entrada}}
+```

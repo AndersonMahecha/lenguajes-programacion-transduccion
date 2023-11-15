@@ -83,7 +83,8 @@ expresion:
 	termino (operadorAritmetico termino)*
 	| llamadaFuncion
 	| expresionArray
-	| trigonometricFunctions;
+	| trigonometricFunctions
+	| matrixFuctions;
 
 expresionArray:'{' expresion (',' expresion)* '}';
 

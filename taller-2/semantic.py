@@ -157,6 +157,34 @@ class MyVisitor(lenguajeVisitor):
         function = self.visitTrigonometricFunction(ctx.trigonometricFunction())
         return function(math.radians(value))
 
+    def visitMatrixFunction(self, ctx: lenguajeParser.MatrixFunctionContext):
+        function = ctx.getText()
+        if function == "matrixSuma":
+            return np.add
+        elif function == "matrixResta":
+            return np.subtract
+        elif function == "matrixMultiplicacion":
+            return np.dot
+        elif function == "matrixTranspuesta":
+            return np.transpose
+        elif function == "matrixInversa":
+            return np.linalg.inv
+        else:
+            raise Exception(f"Funcion de matrices no reconocida: {function}")
+
+    def visitMatrixFuctions(self, ctx: lenguajeParser.MatrixFuctionsContext):
+        values = []
+        for exp in ctx.expresion():
+            value = self.visitExpresion(exp)
+            values.append(value)
+        function = self.visitMatrixFunction(ctx.matrixFunction())
+        call = ""
+        for value in values:
+            call += f"np.array({value}),"
+        call = call[:-1]
+        result = eval(f"function({call})")
+        return result.tolist()
+
     def visitCondicional(self, ctx: lenguajeParser.CondicionalContext):
         result = self.visitComparacion(ctx.comparacion())
         if result:
